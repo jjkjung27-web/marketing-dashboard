@@ -17,6 +17,7 @@ def fetch_kakao_spend(access_token: str, ad_account_id: str, date: str) -> pd.Da
     }
 
     resp = requests.get(url, headers=headers, params=params, timeout=30)
+    resp.encoding = "utf-8"
     resp.raise_for_status()
     data = resp.json().get("data", [])
 
