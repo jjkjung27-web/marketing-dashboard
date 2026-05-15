@@ -64,7 +64,7 @@ budget_df = check_budget(api_df, plan_df)
 # ── 테이블 표시 ────────────────────────────────────────────────────────────────
 st.subheader("① RD vs 매체 API 검증")
 st.dataframe(
-    validation_df.style.applymap(
+    validation_df.style.map(
         lambda v: "color: red" if v == "🔴 불일치" else "",
         subset=["상태"],
     ),
@@ -82,7 +82,7 @@ def _color_status(val):
     return ""
 
 st.dataframe(
-    budget_df.style.applymap(_color_status, subset=["상태"]),
+    budget_df.style.map(_color_status, subset=["상태"]),
     use_container_width=True,
     hide_index=True,
 )
