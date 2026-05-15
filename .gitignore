@@ -13,3 +13,6 @@ dashboard_preview.png
 .playwright-mcp/
 .debug-codex-imagegen/
 *.zip
+
+# Streamlit secrets
+budget_check/.streamlit/secrets.toml
