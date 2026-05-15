@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# 생성 파일
+data/output/
+dashboard_preview.png
+
+# 도구 임시 파일
+.superpowers/
+.playwright-mcp/
+.debug-codex-imagegen/
+*.zip
