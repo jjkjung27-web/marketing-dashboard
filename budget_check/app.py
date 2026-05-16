@@ -55,6 +55,10 @@ with st.spinner("데이터 수집 중..."):
         st.error(f"예산 시트 로드 실패: {e}")
         st.stop()
 
+# Meta 소진에 VAT+수수료 1.079 적용
+if not meta_df.empty:
+    meta_df["api_소진"] = (meta_df["api_소진"] * 1.079).round().astype(int)
+
 api_df = pd.concat([meta_df, kakao_df], ignore_index=True)
 
 with st.expander("🔍 데이터 수집 결과 (진단용)", expanded=False):
@@ -69,12 +73,14 @@ validation_df = validate_rd_vs_api(rd_df, api_df)
 budget_df = check_budget(api_df, plan_df)
 
 # ── 테이블 표시 ────────────────────────────────────────────────────────────────
+NUM_COLS_VAL = ["rd_소진", "api_소진", "차이"]
+NUM_COLS_BUD = ["일예산", "소진", "차이"]
+
 st.subheader("① RD vs 매체 API 검증")
 st.dataframe(
-    validation_df.style.map(
-        lambda v: "color: red" if v == "🔴 불일치" else "",
-        subset=["상태"],
-    ),
+    validation_df.style
+    .map(lambda v: "color: red" if v == "🔴 불일치" else "", subset=["상태"])
+    .format("{:,.0f}", subset=NUM_COLS_VAL),
     use_container_width=True,
     hide_index=True,
 )
@@ -89,7 +95,9 @@ def _color_status(val):
     return ""
 
 st.dataframe(
-    budget_df.style.map(_color_status, subset=["상태"]),
+    budget_df.style
+    .map(_color_status, subset=["상태"])
+    .format("{:,.0f}", subset=NUM_COLS_BUD),
     use_container_width=True,
     hide_index=True,
 )
