@@ -35,4 +35,5 @@ def load_rd(source: Union[str, io.StringIO], date: str) -> pd.DataFrame:
         .reset_index()
         .rename(columns={"캠페인 이름": "캠페인", group_col: "그룹", spend_col: "rd_소진"})
     )
+    result["매체"] = result["매체"].replace({"Facebook": "Meta", "facebook": "Meta"})
     return result[["매체", "캠페인", "그룹", "rd_소진"]]
