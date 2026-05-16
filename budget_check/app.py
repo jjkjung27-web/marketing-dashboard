@@ -57,6 +57,13 @@ with st.spinner("데이터 수집 중..."):
 
 api_df = pd.concat([meta_df, kakao_df], ignore_index=True)
 
+with st.expander("🔍 데이터 수집 결과 (진단용)", expanded=False):
+    st.write(f"RD: {len(rd_df)}행 | Meta API: {len(meta_df)}행 | Kakao API: {len(kakao_df)}행 | 예산 플랜: {len(plan_df)}행")
+    if not meta_df.empty:
+        st.dataframe(meta_df.head(5))
+    else:
+        st.warning(f"Meta API가 {selected_date} 기준 0행을 반환했습니다. 날짜/토큰/계정ID를 확인하세요.")
+
 # ── 비교 계산 ──────────────────────────────────────────────────────────────────
 validation_df = validate_rd_vs_api(rd_df, api_df)
 budget_df = check_budget(api_df, plan_df)
