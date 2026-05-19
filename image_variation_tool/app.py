@@ -37,11 +37,16 @@ with st.sidebar:
         placeholder="예: 커스텀_배너,640,100",
     )
 
-    api_key = st.text_input(
-        "Anthropic API Key",
-        value=os.getenv("ANTHROPIC_API_KEY", ""),
-        type="password",
-    )
+    # API Key: Streamlit Secrets → 환경변수 → 사용자 입력 순으로 확인
+    _secret_key = st.secrets.get("ANTHROPIC_API_KEY", "") if hasattr(st, "secrets") else ""
+    _env_key = os.getenv("ANTHROPIC_API_KEY", "")
+    _auto_key = _secret_key or _env_key
+
+    if _auto_key:
+        api_key = _auto_key
+        st.success("API Key 연결됨 ✓", icon="🔑")
+    else:
+        api_key = st.text_input("Anthropic API Key", type="password")
 
     analyze_btn = st.button("분석 시작", type="primary", disabled=not original_file or not api_key)
 
