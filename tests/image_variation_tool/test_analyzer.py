@@ -1,10 +1,10 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from image_variation_tool.core.models import AnalysisResult, LayoutElement
-from image_variation_tool.core.analyzer import analyze_image, _parse_claude_response
+from image_variation_tool.core.analyzer import analyze_image, _parse_response
 
 
-def test_parse_claude_response_extracts_elements():
+def test_parse_response_extracts_elements():
     raw = """
     {
       "elements": [
@@ -16,7 +16,7 @@ def test_parse_claude_response_extracts_elements():
       "guide_constraints": {}
     }
     """
-    result = _parse_claude_response(raw)
+    result = _parse_response(raw)
     assert isinstance(result, AnalysisResult)
     assert len(result.elements) == 2
     assert result.elements[0].name == "logo"
@@ -25,7 +25,7 @@ def test_parse_claude_response_extracts_elements():
     assert len(result.color_palette) == 3
 
 
-def test_parse_claude_response_handles_missing_guide_constraints():
+def test_parse_response_handles_missing_guide_constraints():
     raw = """
     {
       "elements": [],
@@ -33,11 +33,11 @@ def test_parse_claude_response_handles_missing_guide_constraints():
       "color_palette": []
     }
     """
-    result = _parse_claude_response(raw)
+    result = _parse_response(raw)
     assert result.guide_constraints == {}
 
 
-def test_analyze_image_calls_claude_api(tmp_path):
+def test_analyze_image_calls_gemini_api():
     from PIL import Image
     import io
 
@@ -57,12 +57,14 @@ def test_analyze_image_calls_claude_api(tmp_path):
     }
     '''
 
-    mock_message = MagicMock()
-    mock_message.content = [MagicMock(text=mock_response_text)]
+    mock_response = MagicMock()
+    mock_response.text = mock_response_text
 
-    with patch("image_variation_tool.core.analyzer.anthropic.Anthropic") as MockClient:
-        mock_client = MockClient.return_value
-        mock_client.messages.create.return_value = mock_message
+    mock_model = MagicMock()
+    mock_model.generate_content.return_value = mock_response
+
+    with patch("image_variation_tool.core.analyzer.genai.configure"), \
+         patch("image_variation_tool.core.analyzer.genai.GenerativeModel", return_value=mock_model):
         result = analyze_image(image_bytes, api_key="test-key")
 
     assert isinstance(result, AnalysisResult)

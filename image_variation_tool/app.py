@@ -38,15 +38,15 @@ with st.sidebar:
     )
 
     # API Key: Streamlit Secrets → 환경변수 → 사용자 입력 순으로 확인
-    _secret_key = st.secrets.get("ANTHROPIC_API_KEY", "") if hasattr(st, "secrets") else ""
-    _env_key = os.getenv("ANTHROPIC_API_KEY", "")
+    _secret_key = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") else ""
+    _env_key = os.getenv("GEMINI_API_KEY", "")
     _auto_key = _secret_key or _env_key
 
     if _auto_key:
         api_key = _auto_key
         st.success("API Key 연결됨 ✓", icon="🔑")
     else:
-        api_key = st.text_input("Anthropic API Key", type="password")
+        api_key = st.text_input("Gemini API Key", type="password")
 
     analyze_btn = st.button("분석 시작", type="primary", disabled=not original_file or not api_key)
 
@@ -85,7 +85,7 @@ if original_file:
             st.info("매체를 선택하거나 직접 사이즈를 입력하세요.")
 
 if analyze_btn and api_key and "original_bytes" in st.session_state:
-    with st.spinner("Claude Vision으로 이미지 분석 중..."):
+    with st.spinner("Gemini Vision으로 이미지 분석 중..."):
         original_bytes = st.session_state["original_bytes"]
         original_mime = st.session_state["original_mime"]
         guide_bytes = guide_file.read() if guide_file else None
