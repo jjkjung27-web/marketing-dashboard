@@ -88,8 +88,10 @@ def analyze_image(
     prompt = _USER_PROMPT_WITH_GUIDE if (guide_bytes and guide_mime) else _USER_PROMPT
     parts.append({"text": prompt})
 
+    # v1 API는 system_instruction 미지원 → 프롬프트 앞에 포함
+    parts.insert(0, {"text": _SYSTEM_PROMPT})
+
     payload = {
-        "system_instruction": {"parts": [{"text": _SYSTEM_PROMPT}]},
         "contents": [{"parts": parts}],
     }
 
