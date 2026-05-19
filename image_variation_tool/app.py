@@ -1,5 +1,10 @@
+import sys
 import io
 import os
+
+# Streamlit Cloud에서 repo root를 Python path에 추가
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import streamlit as st
 from PIL import Image
 from dotenv import load_dotenv
