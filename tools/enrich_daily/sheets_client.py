@@ -27,3 +27,41 @@ def load_index(spreadsheet_id: str, gid: str) -> pd.DataFrame:
         if col not in df.columns:
             df[col] = ""
     return df
+
+
+def append_missing_rows(
+    spreadsheet_id: str,
+    sheet_name: str,
+    creds_path: str,
+    missing_rows: list[dict],
+) -> None:
+    """파싱 실패 행의 3개 키를 Sheets 인덱스에 추가 (기존 키 중복 제외)."""
+    if not missing_rows:
+        return
+
+    creds = Credentials.from_service_account_file(creds_path, scopes=_SCOPES)
+    gc = gspread.authorize(creds)
+    ws = gc.open_by_key(spreadsheet_id).worksheet(sheet_name)
+
+    all_vals = ws.get_all_values()
+    if not all_vals:
+        return
+    header = all_vals[0]
+
+    key_indices = [header.index(k) for k in COMPOSITE_KEYS if k in header]
+    existing_keys: set[tuple] = set(
+        tuple(row[i] for i in key_indices)
+        for row in all_vals[1:]
+        if len(row) > max(key_indices, default=-1)
+    )
+
+    to_append = []
+    for row_dict in missing_rows:
+        key = tuple(row_dict.get(k, "") for k in COMPOSITE_KEYS)
+        if key not in existing_keys:
+            new_row = [row_dict.get(col, "") for col in header]
+            to_append.append(new_row)
+            existing_keys.add(key)
+
+    if to_append:
+        ws.append_rows(to_append, value_input_option="USER_ENTERED")
