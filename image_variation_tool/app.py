@@ -48,6 +48,19 @@ with st.sidebar:
     else:
         api_key = st.text_input("Gemini API Key", type="password")
 
+    if api_key and st.button("사용 가능한 모델 확인", type="secondary"):
+        import requests as _req
+        r = _req.get(
+            "https://generativelanguage.googleapis.com/v1beta/models",
+            params={"key": api_key},
+            timeout=10,
+        )
+        if r.ok:
+            names = [m["name"] for m in r.json().get("models", []) if "generateContent" in m.get("supportedGenerationMethods", [])]
+            st.info("사용 가능한 모델:\n" + "\n".join(names))
+        else:
+            st.error(f"모델 조회 실패: {r.text[:200]}")
+
     analyze_btn = st.button("분석 시작", type="primary", disabled=not original_file or not api_key)
 
 # ── 메인 영역 ──────────────────────────────────────────────
