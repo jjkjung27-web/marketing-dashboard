@@ -8,6 +8,7 @@ from image_variation_tool.core.presets import load_presets, get_channels, get_pr
 from image_variation_tool.core.analyzer import analyze_image
 from image_variation_tool.core.layout_engine import generate_variation
 from image_variation_tool.core.exporter import export_to_bytes, create_zip, ExportFormat
+from image_variation_tool.core.models import SizePreset
 
 load_dotenv()
 
@@ -42,8 +43,10 @@ with st.sidebar:
 # ── 메인 영역 ──────────────────────────────────────────────
 if original_file:
     original_bytes = original_file.read()
+    st.session_state["original_bytes"] = original_bytes
+    st.session_state["original_mime"] = original_file.type
     original_image = Image.open(io.BytesIO(original_bytes)).convert("RGB")
-    original_mime = original_file.type  # e.g., "image/jpeg", "image/png"
+    st.session_state["original_image_preview"] = original_image
 
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -58,7 +61,6 @@ if original_file:
     for line in custom_sizes.strip().splitlines():
         parts = line.strip().split(",")
         if len(parts) == 3:
-            from image_variation_tool.core.models import SizePreset
             try:
                 target_presets.append(SizePreset("커스텀", parts[0].strip(), int(parts[1]), int(parts[2])))
             except ValueError:
@@ -72,8 +74,10 @@ if original_file:
         else:
             st.info("매체를 선택하거나 직접 사이즈를 입력하세요.")
 
-if analyze_btn and original_file and api_key:
+if analyze_btn and api_key and "original_bytes" in st.session_state:
     with st.spinner("Claude Vision으로 이미지 분석 중..."):
+        original_bytes = st.session_state["original_bytes"]
+        original_mime = st.session_state["original_mime"]
         guide_bytes = guide_file.read() if guide_file else None
         guide_mime = guide_file.type if guide_file else None
 
@@ -86,7 +90,7 @@ if analyze_btn and original_file and api_key:
                 guide_mime=guide_mime,
             )
             st.session_state["analysis"] = analysis
-            st.session_state["original_image"] = original_image
+            st.session_state["original_image"] = st.session_state["original_image_preview"]
             st.session_state["target_presets"] = target_presets
         except Exception as e:
             st.error(f"분석 실패: {e}")
@@ -107,16 +111,24 @@ if "analysis" in st.session_state:
     original_image = st.session_state["original_image"]
 
     st.subheader("배리에이션 미리보기")
-    exclude_keys = []
     cols = st.columns(min(4, len(presets)) if presets else 1)
 
+    variations = {}
     for i, preset in enumerate(presets):
+        variation = generate_variation(original_image, analysis, preset.width, preset.height)
+        variations[i] = variation
         col = cols[i % len(cols)]
         with col:
-            variation = generate_variation(original_image, analysis, preset.width, preset.height)
             st.image(variation, caption=preset.label, use_container_width=True)
-            if st.checkbox(f"제외", key=f"exclude_{i}"):
-                exclude_keys.append(i)
+            st.checkbox(f"{preset.label} 제외", key=f"exclude_{i}")
+
+    st.session_state["variations"] = variations
+
+    # Read actual checkbox states from session_state
+    exclude_keys = [
+        i for i in range(len(presets))
+        if st.session_state.get(f"exclude_{i}", False)
+    ]
 
     st.divider()
     st.subheader("다운로드")
@@ -127,11 +139,12 @@ if "analysis" in st.session_state:
     ext = export_fmt.value.lower() if export_fmt != ExportFormat.SVG else "svg"
 
     if st.button("ZIP 생성 및 다운로드", type="primary"):
+        cached_variations = st.session_state.get("variations", {})
         files = {}
         for i, preset in enumerate(presets):
             if i in exclude_keys:
                 continue
-            variation = generate_variation(original_image, analysis, preset.width, preset.height)
+            variation = cached_variations.get(i) or generate_variation(original_image, analysis, preset.width, preset.height)
             filename = f"{preset.channel}_{preset.name}_{preset.width}x{preset.height}.{ext}"
             files[filename] = export_to_bytes(variation, export_fmt)
 
