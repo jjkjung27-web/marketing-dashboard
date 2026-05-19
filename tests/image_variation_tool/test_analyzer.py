@@ -60,11 +60,10 @@ def test_analyze_image_calls_gemini_api():
     mock_response = MagicMock()
     mock_response.text = mock_response_text
 
-    mock_model = MagicMock()
-    mock_model.generate_content.return_value = mock_response
+    mock_client = MagicMock()
+    mock_client.models.generate_content.return_value = mock_response
 
-    with patch("image_variation_tool.core.analyzer.genai.configure"), \
-         patch("image_variation_tool.core.analyzer.genai.GenerativeModel", return_value=mock_model):
+    with patch("image_variation_tool.core.analyzer.genai.Client", return_value=mock_client):
         result = analyze_image(image_bytes, api_key="test-key")
 
     assert isinstance(result, AnalysisResult)

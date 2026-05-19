@@ -1,11 +1,12 @@
 import json
 import re
 import io
-import google.generativeai as genai
+import base64
+from google import genai
+from google.genai import types
 from PIL import Image
 from image_variation_tool.core.models import AnalysisResult, LayoutElement
 from image_variation_tool.core.guide_parser import prepare_guide_images
-import base64
 
 _SYSTEM_PROMPT = """당신은 광고 디자인 레이아웃 분석 전문가입니다.
 이미지를 분석하고 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요.
@@ -60,6 +61,12 @@ def _parse_response(text: str) -> AnalysisResult:
     )
 
 
+def _pil_to_part(image: Image.Image) -> types.Part:
+    buf = io.BytesIO()
+    image.save(buf, format="PNG")
+    return types.Part.from_bytes(data=buf.getvalue(), mime_type="image/png")
+
+
 def analyze_image(
     image_bytes: bytes,
     api_key: str,
@@ -67,23 +74,23 @@ def analyze_image(
     guide_bytes: bytes | None = None,
     guide_mime: str | None = None,
 ) -> AnalysisResult:
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash-latest",
-        system_instruction=_SYSTEM_PROMPT,
-    )
+    client = genai.Client(api_key=api_key)
 
     original_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    parts: list = [original_image]
+    parts: list = [_pil_to_part(original_image)]
 
     if guide_bytes and guide_mime:
         guide_list = prepare_guide_images(guide_bytes, guide_mime)
         for b64, _ in guide_list:
             guide_img = Image.open(io.BytesIO(base64.b64decode(b64))).convert("RGB")
-            parts.append(guide_img)
+            parts.append(_pil_to_part(guide_img))
 
     prompt = _USER_PROMPT_WITH_GUIDE if (guide_bytes and guide_mime) else _USER_PROMPT
     parts.append(prompt)
 
-    response = model.generate_content(parts)
+    response = client.models.generate_content(
+        model="gemini-1.5-flash",
+        contents=parts,
+        config=types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT),
+    )
     return _parse_response(response.text)
