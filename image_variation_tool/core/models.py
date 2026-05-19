@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -28,6 +29,6 @@ class AnalysisResult:
     elements: list[LayoutElement]
     background_color: str           # hex, e.g. "#FFFFFF"
     color_palette: list[str]        # hex 목록
-    guide_constraints: dict = field(default_factory=dict)
+    guide_constraints: dict[str, Any] = field(default_factory=dict)
     # guide_constraints 예시:
     # {"safe_zone": 0.05, "forbidden_zones": [...], "logo_min_width": 0.1}
