@@ -1,0 +1,30 @@
+{
+  "구글": [
+    {"name": "리더보드", "width": 728, "height": 90},
+    {"name": "중간 직사각형", "width": 300, "height": 250},
+    {"name": "대형 직사각형", "width": 336, "height": 280},
+    {"name": "하프 페이지", "width": 300, "height": 600},
+    {"name": "대형 리더보드", "width": 970, "height": 90},
+    {"name": "빌보드", "width": 970, "height": 250}
+  ],
+  "메타": [
+    {"name": "피드 (정사각형)", "width": 1080, "height": 1080},
+    {"name": "피드 (가로)", "width": 1200, "height": 628},
+    {"name": "스토리/릴스", "width": 1080, "height": 1920}
+  ],
+  "카카오": [
+    {"name": "비즈보드", "width": 1029, "height": 258},
+    {"name": "피드형", "width": 1200, "height": 628}
+  ],
+  "네이버 GFA": [
+    {"name": "롤링보드(1줄)", "width": 430, "height": 150},
+    {"name": "피드형", "width": 800, "height": 600},
+    {"name": "스마트채널", "width": 320, "height": 50},
+    {"name": "와이드이미지", "width": 1000, "height": 600}
+  ],
+  "SNS": [
+    {"name": "인스타그램 피드", "width": 1080, "height": 1080},
+    {"name": "인스타그램 스토리", "width": 1080, "height": 1920},
+    {"name": "유튜브 썸네일", "width": 1280, "height": 720}
+  ]
+}
