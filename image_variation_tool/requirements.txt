@@ -1,0 +1,8 @@
+streamlit>=1.35.0
+anthropic>=0.28.0
+Pillow>=10.3.0
+pdf2image>=1.17.0
+svgwrite>=1.4.3
+python-dotenv>=1.0.1
+pytest>=8.2.0
+pytest-mock>=3.14.0
