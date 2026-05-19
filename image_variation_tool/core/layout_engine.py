@@ -4,11 +4,6 @@ from image_variation_tool.core.models import AnalysisResult, LayoutElement
 _SAFE_ZONE = 0.05  # 기본 안전 여백 비율
 
 
-def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
-    h = hex_color.lstrip("#")
-    return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
-
-
 def _get_focus_region(
     elements: list[LayoutElement], orig_w: int, orig_h: int
 ) -> tuple[int, int, int, int]:
