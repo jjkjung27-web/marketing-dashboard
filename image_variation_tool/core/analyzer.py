@@ -32,8 +32,13 @@ _USER_PROMPT_WITH_GUIDE = "첫 번째 이미지는 원본 시안이고, 나머�
 
 def _parse_claude_response(text: str) -> AnalysisResult:
     match = re.search(r"\{.*\}", text, re.DOTALL)
-    raw = match.group(0) if match else text
-    data = json.loads(raw)
+    if match is None:
+        raise ValueError(f"No JSON found in Claude response: {text[:200]}")
+    raw = match.group(0)
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Claude returned invalid JSON: {e}\nRaw: {raw[:200]}") from e
     elements = [
         LayoutElement(
             name=e["name"],
@@ -56,6 +61,7 @@ def _parse_claude_response(text: str) -> AnalysisResult:
 def analyze_image(
     image_bytes: bytes,
     api_key: str,
+    image_mime: str = "image/png",
     guide_bytes: bytes | None = None,
     guide_mime: str | None = None,
 ) -> AnalysisResult:
@@ -66,7 +72,7 @@ def analyze_image(
             "type": "image",
             "source": {
                 "type": "base64",
-                "media_type": "image/png",
+                "media_type": image_mime,
                 "data": image_to_base64(image_bytes),
             },
         }
@@ -84,7 +90,7 @@ def analyze_image(
 
     message = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=1024,
+        max_tokens=2048,
         system=_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": image_content}],
     )
