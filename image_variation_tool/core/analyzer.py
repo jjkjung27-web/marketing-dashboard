@@ -60,7 +60,7 @@ def _parse_response(text: str) -> AnalysisResult:
     )
 
 
-_GEMINI_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent"
+_GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 
 def _image_to_inline(image: Image.Image) -> dict:
