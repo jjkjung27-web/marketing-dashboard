@@ -1,19 +1,5 @@
-import subprocess
-import sys
-
 import pandas as pd
 import streamlit as st
-
-
-@st.cache_resource(show_spinner="Playwright 초기화 중...")
-def _install_playwright() -> None:
-    subprocess.run(
-        [sys.executable, "-m", "playwright", "install", "chromium"],
-        capture_output=True,
-    )
-
-
-_install_playwright()
 
 from tools.discount_checker import config
 from tools.discount_checker.cache import Cache

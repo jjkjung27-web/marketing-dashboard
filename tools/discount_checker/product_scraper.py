@@ -1,10 +1,22 @@
+import os
 import re
+import shutil
+
 from playwright.sync_api import sync_playwright
 
 from tools.discount_checker.cache import Cache, CACHE_MISS
 
 MUSINSA_PRODUCT_URL = "https://www.musinsa.com/products/{uid}"
 CACHE_TTL = 24 * 3600
+
+_SYSTEM_CHROMIUM_PATHS = ["/usr/bin/chromium", "/usr/bin/chromium-browser"]
+
+
+def _system_chromium_path() -> str | None:
+    for path in _SYSTEM_CHROMIUM_PATHS:
+        if os.path.exists(path):
+            return path
+    return shutil.which("chromium") or shutil.which("chromium-browser")
 
 
 def _parse_discount_from_html(html: str) -> int | None:
@@ -23,8 +35,12 @@ def _parse_discount_from_html(html: str) -> int | None:
 
 def _scrape_discount(uid: str) -> int | None:
     url = MUSINSA_PRODUCT_URL.format(uid=uid)
+    system_chromium = _system_chromium_path()
+    launch_kwargs = {"headless": True}
+    if system_chromium:
+        launch_kwargs["executable_path"] = system_chromium
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(**launch_kwargs)
         page = browser.new_page()
         try:
             page.goto(url, wait_until="networkidle", timeout=30000)
