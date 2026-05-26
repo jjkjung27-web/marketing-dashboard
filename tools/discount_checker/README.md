@@ -27,11 +27,10 @@ pip install -r requirements.txt
 playwright install chromium
 ```
 
-### 2. Google 서비스 계정 설정
+### 2. Google Sheets 공유 설정
 
-1. [GCP 콘솔](https://console.cloud.google.com) → IAM → 서비스 계정 → 키 생성(JSON)
-2. 다운로드한 JSON 파일을 프로젝트 루트에 `service_account.json`으로 저장
-3. 검수할 소재관리 시트를 해당 서비스 계정 이메일과 **공유** (보기 권한)
+검수할 소재관리 시트를 **"링크가 있는 사용자 보기 가능"** 으로 설정합니다.
+(이미 팀 내 공유된 시트라면 별도 설정 불필요)
 
 ### 3. 환경변수 설정
 
@@ -42,7 +41,6 @@ META_ACCESS_TOKEN=your_meta_access_token
 META_AD_ACCOUNT_ID=act_XXXXXXXXX
 ANTHROPIC_API_KEY=your_anthropic_api_key
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ
-GOOGLE_SERVICE_ACCOUNT_JSON=service_account.json
 ```
 
 | 변수 | 설명 | 필수 |
@@ -51,7 +49,6 @@ GOOGLE_SERVICE_ACCOUNT_JSON=service_account.json
 | `META_AD_ACCOUNT_ID` | Meta 광고 계정 ID (`act_` 포함) | ✅ |
 | `ANTHROPIC_API_KEY` | Claude Vision API 키 | ✅ |
 | `SLACK_WEBHOOK_URL` | Slack 웹훅 URL (불일치 알림) | 선택 |
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | 서비스 계정 JSON 경로 (기본: `service_account.json`) | 선택 |
 
 **Meta 액세스 토큰 발급:**
 Meta Business → 설정 → 시스템 사용자 → 액세스 토큰 생성 (`ads_read` 권한 필요)

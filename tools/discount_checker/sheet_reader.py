@@ -1,12 +1,11 @@
+import csv
+import io
 import re
 from urllib.parse import parse_qs
 
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+import requests
 
 from tools.discount_checker.comparator import AdRow
-
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 
 def parse_sheets_url(url: str) -> tuple[str, str | None, str | None]:
@@ -51,42 +50,31 @@ def _find_header_indices(
     )
 
 
-def _gid_to_sheet_name(service, spreadsheet_id: str, gid: str) -> str:
-    meta = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
-    for sheet in meta["sheets"]:
-        if str(sheet["properties"]["sheetId"]) == gid:
-            return sheet["properties"]["title"]
-    raise ValueError(f"gid={gid} 에 해당하는 시트를 찾을 수 없습니다.")
-
-
 def read_ad_rows(
     url: str,
-    service_account_json: str,
     ad_col: str = "광고명",
     uid_col: str = "UID",
 ) -> list[AdRow]:
-    creds = service_account.Credentials.from_service_account_file(
-        service_account_json, scopes=SCOPES
-    )
-    service = build("sheets", "v4", credentials=creds)
+    """Google Sheets CSV export로 광고명·UID 목록 읽기.
 
+    시트는 '링크가 있는 사용자 보기 가능' 설정이어야 합니다.
+    """
     spreadsheet_id, gid, range_str = parse_sheets_url(url)
-    sheet_name = _gid_to_sheet_name(service, spreadsheet_id, gid) if gid else None
 
-    if range_str and sheet_name:
-        full_range = f"'{sheet_name}'!{range_str}"
-    elif sheet_name:
-        full_range = f"'{sheet_name}'"
-    else:
-        full_range = range_str
-
-    result = (
-        service.spreadsheets()
-        .values()
-        .get(spreadsheetId=spreadsheet_id, range=full_range)
-        .execute()
+    export_url = (
+        f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
+        f"/export?format=csv"
     )
-    rows = result.get("values", [])
+    if gid:
+        export_url += f"&gid={gid}"
+    if range_str:
+        export_url += f"&range={range_str}"
+
+    resp = requests.get(export_url, timeout=15)
+    resp.encoding = "utf-8"
+    resp.raise_for_status()
+
+    rows = list(csv.reader(io.StringIO(resp.text)))
     if not rows:
         return []
 

@@ -26,7 +26,6 @@ def main() -> None:
     try:
         ad_rows = read_ad_rows(
             args.sheet_url,
-            config.GOOGLE_SERVICE_ACCOUNT_JSON,
             ad_col=args.ad_col,
             uid_col=args.uid_col,
         )
