@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 META_ACCESS_TOKEN: str = os.environ["META_ACCESS_TOKEN"]
 META_AD_ACCOUNT_ID: str = os.environ["META_AD_ACCOUNT_ID"]
