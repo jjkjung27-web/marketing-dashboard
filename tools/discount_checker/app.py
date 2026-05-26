@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+# Streamlit Cloud에서 repo 루트가 sys.path에 없을 수 있어 명시적으로 추가
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 import pandas as pd
 import streamlit as st
 
