@@ -56,7 +56,49 @@ Meta Business → 설정 → 시스템 사용자 → 액세스 토큰 생성 (`a
 **Anthropic API 키 발급:**
 [console.anthropic.com](https://console.anthropic.com) → API Keys
 
-## 사용법
+## 팀 공유 배포 (Streamlit Community Cloud)
+
+팀원 전원이 별도 설치 없이 URL 하나로 접근할 수 있습니다.
+
+### 1. GitHub 저장소 Push
+
+```bash
+git push origin master
+```
+
+저장소가 **Public**이어야 무료로 배포 가능합니다.
+
+### 2. Streamlit Cloud 앱 생성
+
+1. [share.streamlit.io](https://share.streamlit.io) 접속 → GitHub 로그인
+2. **New app** → 저장소 선택
+3. **Main file path**: `tools/discount_checker/app.py` 입력
+4. **Deploy!**
+
+### 3. Secrets 설정
+
+앱 배포 후 **Settings → Secrets**에 아래 내용 입력:
+
+```toml
+META_ACCESS_TOKEN = "EAAVZCuJ..."
+META_AD_ACCOUNT_ID = "act_532037857381482"
+ANTHROPIC_API_KEY = "sk-ant-..."
+SLACK_WEBHOOK_URL = ""
+```
+
+저장하면 앱이 재시작되고 팀 URL이 생성됩니다.
+
+---
+
+## 로컬 실행 (개발용)
+
+### 대시보드
+
+```bash
+streamlit run tools/discount_checker/app.py
+```
+
+## CLI 사용법
 
 ### 기본 실행
 
