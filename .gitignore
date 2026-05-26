@@ -6,6 +6,8 @@ __pycache__/
 
 # 생성 파일
 data/output/
+output/
+cache/
 dashboard_preview.png
 
 # 도구 임시 파일
