@@ -60,7 +60,7 @@ class ProductScraper:
                 rate = _scrape_discount(uid)
             except Exception:
                 rate = None
-            if rate is not None:
-                self._cache.set(cache_key, rate, ttl_seconds=CACHE_TTL)
+            ttl = CACHE_TTL if rate is not None else 3600
+            self._cache.set(cache_key, rate, ttl_seconds=ttl)
             results[uid] = rate
         return results

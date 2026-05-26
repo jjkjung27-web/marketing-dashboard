@@ -2,18 +2,15 @@ from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.adcreative import AdCreative
 from facebook_business.api import FacebookAdsApi
 
-from tools.discount_checker.cache import Cache
-
 
 def _extract_image_url(creative_data: dict) -> str | None:
     return creative_data.get("image_url") or creative_data.get("thumbnail_url")
 
 
 class MetaClient:
-    def __init__(self, access_token: str, ad_account_id: str, cache: Cache):
+    def __init__(self, access_token: str, ad_account_id: str):
         FacebookAdsApi.init(access_token=access_token)
         self._account = AdAccount(ad_account_id)
-        self._cache = cache
 
     def get_creative(self, ad_name: str) -> tuple[str, str] | None:
         """Returns (creative_id, image_url) or None if not found."""

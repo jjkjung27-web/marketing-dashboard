@@ -19,7 +19,7 @@ def main() -> None:
     args = parser.parse_args()
 
     cache = Cache(config.CACHE_PATH)
-    meta = MetaClient(config.META_ACCESS_TOKEN, config.META_AD_ACCOUNT_ID, cache)
+    meta = MetaClient(config.META_ACCESS_TOKEN, config.META_AD_ACCOUNT_ID)
     analyzer = ImageAnalyzer(config.ANTHROPIC_API_KEY, cache)
     scraper = ProductScraper(cache)
 

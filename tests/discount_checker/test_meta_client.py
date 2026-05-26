@@ -1,22 +1,19 @@
 from unittest.mock import patch, MagicMock
-from tools.discount_checker.cache import Cache, CACHE_MISS
 from tools.discount_checker.meta_client import MetaClient, _extract_image_url
 
 
-def test_returns_none_when_no_ads_found(tmp_path):
-    cache = Cache(tmp_path / "cache.json")
+def test_returns_none_when_no_ads_found():
     with patch("tools.discount_checker.meta_client.FacebookAdsApi"), \
          patch("tools.discount_checker.meta_client.AdAccount") as mock_account_cls:
         mock_account = MagicMock()
         mock_account_cls.return_value = mock_account
         mock_account.get_ads.return_value = []
-        client = MetaClient("token", "act_123", cache)
+        client = MetaClient("token", "act_123")
         result = client.get_creative("ad_name_not_found")
     assert result is None
 
 
-def test_returns_creative_id_and_image_url(tmp_path):
-    cache = Cache(tmp_path / "cache.json")
+def test_returns_creative_id_and_image_url():
     with patch("tools.discount_checker.meta_client.FacebookAdsApi"), \
          patch("tools.discount_checker.meta_client.AdAccount") as mock_account_cls, \
          patch("tools.discount_checker.meta_client.AdCreative") as mock_creative_cls:
@@ -31,7 +28,7 @@ def test_returns_creative_id_and_image_url(tmp_path):
             "image_url": "http://example.com/img.jpg"
         }
 
-        client = MetaClient("token", "act_123", cache)
+        client = MetaClient("token", "act_123")
         result = client.get_creative("test_ad")
 
     assert result == ("cid_001", "http://example.com/img.jpg")
