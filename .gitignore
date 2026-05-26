@@ -18,3 +18,4 @@ dashboard_preview.png
 
 # Streamlit secrets
 budget_check/.streamlit/secrets.toml
+service_account.json
